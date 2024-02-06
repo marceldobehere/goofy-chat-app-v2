@@ -1,10 +1,9 @@
 import express from "npm:express@4.18.2";
-import nodeCleanup from "./other/nodeCleanup.js";
-
+export let app = express();
 import * as https from "node:https";
+
 import {thingExists} from "./other/utils.js";
 
-export const app = express();
 
 export function startServer()
 {
@@ -36,25 +35,11 @@ export function startServer()
     }
 
     if (USE_HTTPS)
-    {
         https.createServer(
             {
-                key: fs.readFileSync(__dirname + "/data/ssl/key.pem"),
-                cert: fs.readFileSync(__dirname + "/data/ssl/cert.pem"),
-            },
-            app).listen(443);
-    }
+                key: Deno.readTextFileSync( "./data/ssl/key.pem"),
+                cert: Deno.readTextFileSync("./data/ssl/cert.pem")
+            }, app).listen(443, () => {console.log(`> Listening on port 443`);});
     else
-        app.listen(80);
+        app.listen(80, () => {console.log(`> Listening on port 80`);});
 }
-
-
-
-app.get("/", (req, res) => {
-    res.send("Welcome to the Dinosaur API!");
-});
-
-app.listen(8000, () => {
-    console.log("Server started on http://localhost:8000");
-});
-
