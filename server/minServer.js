@@ -1,5 +1,6 @@
 import express from "npm:express@4.18.2";
 export let app = express();
+export let server;
 import * as https from "node:https";
 
 import {thingExists} from "./other/utils.js";
@@ -35,11 +36,11 @@ export function startServer()
     }
 
     if (USE_HTTPS)
-        https.createServer(
+        server = https.createServer(
             {
                 key: Deno.readTextFileSync( "./data/ssl/key.pem"),
                 cert: Deno.readTextFileSync("./data/ssl/cert.pem")
             }, app).listen(443, () => {console.log(`> Listening on port 443`);});
     else
-        app.listen(80, () => {console.log(`> Listening on port 80`);});
+        server = app.listen(80, () => {console.log(`> Listening on port 80`);});
 }
