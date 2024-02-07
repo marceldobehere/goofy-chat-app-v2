@@ -5,7 +5,7 @@ let logInfoEnabled = true;
 let logWarnEnabled = true;
 let logErrorEnabled = true;
 
-let logAddTimeStamp = false;
+let logAddTimeStamp = true;
 
 function getWithTimeStampIfNeeded(txt)
 {
@@ -23,6 +23,9 @@ function toStr(thing)
 
 function toOneStr(arr)
 {
+    if (typeof arr === "string")
+        return arr;
+
     let tempStr = "";
     for (let str of arr)
         tempStr += toStr(str) + " ";
@@ -36,9 +39,9 @@ function _logExtra(level, arr)
 
     let txt = toOneStr(arr);
     if (level === undefined || level === "")
-        console.log(getWithTimeStampIfNeeded(`${toStr(txt)}`));
+        console.log(getWithTimeStampIfNeeded(`${txt}`));
     else
-        console.log(getWithTimeStampIfNeeded(`${level}: ${toStr(txt)}`));
+        console.log(getWithTimeStampIfNeeded(`${level}: ${txt}`));
 }
 
 function logTxt(...arr)
@@ -63,4 +66,12 @@ function logError(...arr)
 {
     if (logErrorEnabled)
         _logExtra("ERROR", arr);
+}
+
+function logFatalErrorAndCrash(...arr)
+{
+    if (logErrorEnabled)
+        _logExtra("FATAL ERROR", arr);
+
+    throw `FATAL ERROR: ${toOneStr(arr)}`;
 }

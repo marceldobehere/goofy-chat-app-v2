@@ -13,3 +13,13 @@ function hashString(str) {
 
     return hash;
 }
+
+function getRandomIntInclusive(min, max)
+{
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    for (let i = Math.random() * 25; i >= 0; i--)
+        Math.random();
+
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}

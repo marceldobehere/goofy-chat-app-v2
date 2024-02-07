@@ -14,9 +14,15 @@ const io = new Server(server);
 io.setMaxListeners(1000);
 
 import * as socketSessionManager from "./lib/socketSessionManager.js";
+import * as userInterface from "./lib/userInterface.js";
+import * as messageManager from "./lib/messageManager.js";
+import {backUpMessages} from "./lib/messageManager.js";
 
-await socketSessionManager.initApp(io);
+
+await userInterface.initApp();
+await socketSessionManager.initApp(io, userInterface);
+await messageManager.initApp(io, userInterface, socketSessionManager);
 
 nodeCleanup(function (exitCode, signal) {
-    console.log("> EXIT");
+    messageManager.backUpMessages();
 });

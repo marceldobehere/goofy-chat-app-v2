@@ -1,10 +1,22 @@
 import * as sec from './sec.js';
 import * as enc from './enc.js';
+import {addUser} from "./userInterface.js";
 
 let io;
+let userInterface;
+
 export let userSocketDict;
 let tempSocketVerifyMap;
 
+export function socketBelongsToUser(socket, userId)
+{
+    return userSocketDict[userId] && userSocketDict[userId].includes(socket);
+}
+
+export function getSocketsForUser(userId)
+{
+    return userSocketDict[userId];
+}
 
 function removeSocketsFromDict(socket)
 {
@@ -42,9 +54,10 @@ function listVerifyDict()
 
 }
 
-export async function initApp(_io)
+export async function initApp(_io, _userInterface)
 {
     io = _io;
+    userInterface = _userInterface;
     userSocketDict = {};
     tempSocketVerifyMap = new Map();
 
@@ -81,7 +94,7 @@ export async function initApp(_io)
             // listVerifyDict();
         });
 
-        socket.on('login-2', (obj) => {
+        socket.on('login-2', async (obj) => {
             let phrase = obj["phrase"];
             if (phrase === undefined)
                 return socket.emit('login-2', {error: "Missing phrase"});
@@ -102,10 +115,14 @@ export async function initApp(_io)
 
             console.log(`> LOGIN (2/2) [${socket.id}]: (${userId}) SUCCESS!`);
             addSocketToUser(userId, socket);
+            await userInterface.addUser(userId, {"public-key": pubKey});
+
             socket.emit('login-2', {userId: userId});
 
             // listUserDict();
             // listVerifyDict();
         });
     });
+
+    console.log("> Socket session manager initialized");
 }

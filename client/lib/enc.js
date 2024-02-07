@@ -20,7 +20,7 @@ function testRsa(pubKey, privKey)
     if (testStr2 == testStr1)
         return true;
 
-    alert('RSA CHECK FAILED!');
+    logError('RSA CHECK FAILED!');
     return false;
 }
 
@@ -36,7 +36,7 @@ function testAes(pubKey, privKey)
         return true;
 
 
-    alert('AES CHECK FAILED!');
+    logError('AES CHECK FAILED!');
     return false;
 }
 
@@ -61,7 +61,7 @@ function StringIntoRsaStringList(str, pubKey)
 {
     if (!pubKey)
     {
-        alert(`Error: StringIntoRsaStringList() called with no public key!`);
+        logError(`Error: StringIntoRsaStringList() called with no public key!`);
         return [];
     }
     // we need to split the string into chunks of 100 bytes
@@ -89,7 +89,7 @@ function rsaStringListIntoString(rsaStrList, privKey)
 {
     if (!privKey)
     {
-        alert(`Error: rsaStringListIntoString() called with no private key!`);
+        logError(`Error: rsaStringListIntoString() called with no private key!`);
         return "";
     }
 
@@ -107,7 +107,7 @@ async function StringIntoRsaStringListAsync(str, pubKey)
 {
     if (!pubKey)
     {
-        alert(`Error: StringIntoRsaStringList() called with no public key!`);
+        logError(`Error: StringIntoRsaStringList() called with no public key!`);
         return [];
     }
     // we need to split the string into chunks of 100 bytes
@@ -136,7 +136,7 @@ async function rsaStringListIntoStringAsync(rsaStrList, privKey)
 {
     if (!privKey)
     {
-        alert(`Error: rsaStringListIntoString() called with no private key!`);
+        logError(`Error: rsaStringListIntoString() called with no private key!`);
         return "";
     }
 

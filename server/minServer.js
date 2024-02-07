@@ -11,13 +11,6 @@ export function startServer()
     // If no data folder, create
     Deno.mkdir("./data", { recursive: true });
 
-    // If no users.json, create
-    if (!thingExists("./data/users.json"))
-    {
-        console.log("> Creating users.json");
-        Deno.writeTextFileSync("./data/users.json", "[]");
-    }
-
     let USE_HTTPS = !!(Deno.args[0] && Deno.args[0] === '-https');
     console.log(USE_HTTPS);
 

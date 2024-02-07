@@ -15,7 +15,7 @@ function msgHook(socket, channel, callback)
     if (replyDict[channel] == undefined)
     {
         socket.on(channel, (obj) => {
-            handleReply(channel, obj);
+            handleReply(replyDict, channel, obj);
         });
         replyDict[channel] = {base: callback, callbacks: []};
     }
