@@ -3,6 +3,7 @@ function createUser()
     return {
         "mainAccount": createAccount(),
         "listenerAccount": createAccount(),
+        "useListener": true,
         "redirectAccounts": []
     }
 }

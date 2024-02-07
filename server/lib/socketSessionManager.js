@@ -3,8 +3,7 @@ import * as enc from './enc.js';
 
 let io;
 export let userSocketDict;
-export let tempSocketVerifyDict;
-
+let tempSocketVerifyMap;
 
 
 function removeSocketsFromDict(socket)
@@ -28,20 +27,38 @@ function addSocketToUser(userId, socket)
         userSocketDict[userId] = [socket];
 }
 
+function listUserDict()
+{
+    console.log("USER DICT: ");
+    for (let key in userSocketDict)
+        console.log(`  ${key}: ${userSocketDict[key].length}`);
+}
+
+function listVerifyDict()
+{
+    console.log("VERIFY DICT: ");
+    for (let [key, value] of tempSocketVerifyMap)
+        console.log(`  ${key.id}: ${JSON.stringify(value)}`);
+
+}
+
 export async function initApp(_io)
 {
     io = _io;
     userSocketDict = {};
-    tempSocketVerifyDict = {};
+    tempSocketVerifyMap = new Map();
 
     io.on('connection', (socket) => {
         console.log('> User connected');
-        tempSocketVerifyDict[socket] = {};
+        tempSocketVerifyMap.set(socket, {});
 
         socket.on('disconnect', () => {
             console.log('> User disconnected');
-            delete tempSocketVerifyDict[socket];
+            tempSocketVerifyMap.delete(socket);
             removeSocketsFromDict(socket);
+
+            // listUserDict();
+            // listVerifyDict();
         });
 
         socket.on('login-1', (obj) => {
@@ -55,23 +72,25 @@ export async function initApp(_io)
             if (phaseEnc === undefined)
                 return socket.emit('login-1', {error: "Failed to encrypt phrase"});
 
-            tempSocketVerifyDict[socket]["phrase"] = phrase;
-            tempSocketVerifyDict[socket]["public-key"] = pubKey;
+            tempSocketVerifyMap.get(socket)["phrase"] = phrase;
+            tempSocketVerifyMap.get(socket)["public-key"] = pubKey;
 
             console.log(`> LOGIN (1/2) [${socket.id}]: \"${phaseEnc}\" -> \"${phrase}\"`);
             socket.emit('login-1', {"phrase": phaseEnc});
+
+            // listVerifyDict();
         });
 
         socket.on('login-2', (obj) => {
             let phrase = obj["phrase"];
             if (phrase === undefined)
                 return socket.emit('login-2', {error: "Missing phrase"});
-            if (tempSocketVerifyDict[socket] === undefined)
+            if (tempSocketVerifyMap.get(socket)["phrase"] === undefined)
                 return socket.emit('login-2', {error: "No login-1"});
 
-            let actualPhrase = tempSocketVerifyDict[socket]["phrase"];
-            let pubKey = tempSocketVerifyDict[socket]["public-key"];
-            tempSocketVerifyDict[socket] = {};
+            let actualPhrase = tempSocketVerifyMap.get(socket)["phrase"];
+            let pubKey = tempSocketVerifyMap.get(socket)["public-key"];
+            tempSocketVerifyMap.set(socket, {});
 
             if (phrase !== actualPhrase)
             {
@@ -84,6 +103,9 @@ export async function initApp(_io)
             console.log(`> LOGIN (2/2) [${socket.id}]: (${userId}) SUCCESS!`);
             addSocketToUser(userId, socket);
             socket.emit('login-2', {userId: userId});
+
+            // listUserDict();
+            // listVerifyDict();
         });
     });
 }

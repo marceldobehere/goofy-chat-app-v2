@@ -42,7 +42,7 @@ function handleReply(replyDict, channel, obj)
             return;
         }
 
-        console.log(`Unhandled reply: ${channel} ${JSON.stringify(obj)}`);
+        logWarn(`Unhandled reply: ${channel} ${JSON.stringify(obj)}`);
     }
 }
 

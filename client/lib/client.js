@@ -9,16 +9,18 @@ async function initClientLib()
         currentUser = createUser();
         saveObject("currentUser", currentUser);
     }
-    console.log("Current User:", currentUser);
+    logTxt(`Current User: (Main: ${currentUser["mainAccount"]["userId"]}, Listener: ${currentUser["listenerAccount"]["userId"]} (Enabled: ${currentUser["useListener"]}))`);
     if (testUser(currentUser))
-        console.log("> Encryption with user works");
+        logInfo("Encryption with user works.");
     else
-        console.log("> Encryption with user is broken :(");
+        logError("Encryption with user is broken!");
 
     serverList = loadObjectOrCreateDefault("serverList", []);
     serverList = ["http://localhost:80"];
     saveObject("serverList", serverList);
-    console.log("Server List:", serverList);
+    logTxt("Server List:", serverList);
 
-    createSockets(serverList, currentUser);
+    await createSockets(serverList, currentUser);
+
+    await initMsgSystem();
 }

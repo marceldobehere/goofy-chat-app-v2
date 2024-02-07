@@ -45,7 +45,6 @@ function loadAesEncryptedObject(key)
     if (temp == null)
         return null;
 
-    //console.log(`AES> Loading \"${key}\" - ${temp.length} bytes`);
     temp = aesDecrypt(temp, ENV_CLIENT_PRIVATE_KEY);
     return JSON.parse(temp);
 }
@@ -55,6 +54,5 @@ function saveAesEncryptedObject(key, obj)
     let temp = JSON.stringify(obj);
     temp = aesEncrypt(temp);
 
-    //console.log(`AES> Saving \"${key}\" - ${temp.length} bytes`);
     localStorage.setItem(key, temp);
 }
