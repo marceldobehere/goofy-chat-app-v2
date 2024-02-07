@@ -4,7 +4,7 @@ import nodeCleanup from "./other/nodeCleanup.js";
 startServer();
 
 app.get("/", (req, res) => {
-    res.redirect("/index/index.html");
+    res.redirect("https://marceldobehere.github.io/goofy-chat-app-v2-client/client/");
 });
 
 
