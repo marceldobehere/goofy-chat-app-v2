@@ -27,6 +27,17 @@ function trySendingMessages()
             i--;
         }
     }
+
+    // Remove mails that have store:false
+    for (let i = 0; i < pendingMsgArr.length; i++)
+    {
+        let mail = pendingMsgArr[i];
+        if (mail["store"] == false)
+        {
+            pendingMsgArr.splice(i, 1);
+            i--;
+        }
+    }
 }
 
 function trySendMessage(mail)
@@ -93,6 +104,7 @@ export async function initApp(_io, _userInterface, _socketSessionManager)
             let userIdFrom = obj["from"];
             let userIdTo = obj["to"];
             let data = obj["data"];
+            let store = !!obj["store"];
             if (userIdFrom === undefined || userIdTo === undefined || data === undefined)
                 return socket.emit('send-message', {error: "Missing data"});
 
@@ -103,6 +115,7 @@ export async function initApp(_io, _userInterface, _socketSessionManager)
                 from: userIdFrom,
                 to: userIdTo,
                 date: new Date(),
+                store: store,
                 data: data
             };
 
