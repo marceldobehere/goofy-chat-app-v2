@@ -1,4 +1,4 @@
-import CryptoJS from 'npm:crypto-js@4.1.1';
+import CryptoJS from 'npm:crypto-js@4.2.0';
 
 let hashStringMap = new Map();
 
