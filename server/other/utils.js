@@ -9,3 +9,9 @@ export function thingExists(path)
         return false;
     }
 }
+
+export function writeFileSync(filename, text) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    Deno.writeFileSync(filename, data);
+}

@@ -38,7 +38,12 @@ export async function initApp()
 
 export async function getUser(userId)
 {
-    return userCache[userId];
+    let user = userCache[userId];
+    if (user === undefined)
+        return undefined;
+    if (user["push-subcriptions"] === undefined)
+        user["push-subcriptions"] = [];
+    return user;
 }
 
 export async function userExists(userId)
@@ -49,6 +54,15 @@ export async function userExists(userId)
 export async function addUser(userId, user)
 {
     if (await userExists(userId))
+        return;
+
+    userCache[userId] = user;
+    await Deno.writeTextFile("./data/users.json", JSON.stringify(userCache));
+}
+
+export async function updateUser(userId, user)
+{
+    if (!await userExists(userId))
         return;
 
     userCache[userId] = user;

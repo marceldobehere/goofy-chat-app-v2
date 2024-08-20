@@ -115,7 +115,7 @@ export async function initApp(_io, _userInterface)
 
             console.log(`> LOGIN (2/2) [${socket.id}]: (${userId}) SUCCESS!`);
             addSocketToUser(userId, socket);
-            await userInterface.addUser(userId, {"public-key": pubKey});
+            await userInterface.addUser(userId, {"public-key": pubKey, "push-subcriptions": []});
 
             socket.emit('login-2', {userId: userId});
 

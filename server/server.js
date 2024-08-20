@@ -16,11 +16,13 @@ io.setMaxListeners(1000);
 import * as socketSessionManager from "./lib/socketSessionManager.js";
 import * as userInterface from "./lib/userInterface.js";
 import * as messageManager from "./lib/messageManager.js";
-
+import * as pushManager from "./lib/pushManager.js";
 
 await userInterface.initApp();
 await socketSessionManager.initApp(io, userInterface);
-await messageManager.initApp(io, userInterface, socketSessionManager);
+await pushManager.initApp(io, userInterface, socketSessionManager);
+await messageManager.initApp(io, userInterface, socketSessionManager, pushManager);
+
 
 nodeCleanup(function (exitCode, signal) {
     messageManager.backUpMessages();

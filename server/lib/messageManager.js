@@ -3,6 +3,7 @@ import * as utils from '../other/utils.js';
 let io;
 let userInterface;
 let socketSessionManager;
+let pushManager;
 
 let pendingMsgArr;
 
@@ -43,8 +44,10 @@ function trySendingMessages()
 function trySendMessage(mail)
 {
     let sockets = socketSessionManager.getSocketsForUser(mail["to"]);
-    if (sockets === undefined)
+    if (sockets === undefined) {
+        pushManager.notifyUserIfNeeded(mail["to"]);
         return false;
+    }
 
     for (let socket of sockets)
         socket.emit('message', mail);
@@ -78,11 +81,13 @@ function tryLoadingMessages()
     }
 }
 
-export async function initApp(_io, _userInterface, _socketSessionManager)
+export async function initApp(_io, _userInterface, _socketSessionManager, _pushManager)
 {
     io = _io;
     userInterface = _userInterface;
     socketSessionManager = _socketSessionManager;
+    pushManager = _pushManager;
+
     pendingMsgArr = [];
     tryLoadingMessages();
     setInterval(backUpMessages, 1000 * 60 * 60); // 1 hour
