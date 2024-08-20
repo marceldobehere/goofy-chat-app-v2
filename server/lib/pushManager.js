@@ -23,11 +23,11 @@ export async function notifyUserIfNeeded(userId) {
     for (let sub of user["push-subcriptions"])
     {
         console.log(" > Sending push notification to: ", sub);
-        webPush.sendNotification(sub, JSON.stringify({
-            title: "New message",
-            body: "You have a new message"
-        })).catch(error => {
-            console.error("> Error sending push notification: ", error);
+        webPush.sendNotification(sub, undefined).then(() => { // deno cant send non-empty payload
+            console.log(" > Push notification sent");
+        }).catch(error => {
+            console.error(" > Error sending push notification: ", error);
+            //user["push-subcriptions"] = user["push-subcriptions"].filter(subA => JSON.stringify(subA) !== JSON.stringify(sub));
         });
     }
 
@@ -55,7 +55,7 @@ export async function initKeys()
         writeFileSync("./data/vapid/pub.txt", vapidKeys.publicKey);
     }
     let vapidPrivKey = Deno.readTextFileSync("./data/vapid/priv.txt");
-    vapidPubKey = Deno.readTextFileSync("./data/vapid/pub.txt",);
+    vapidPubKey = Deno.readTextFileSync("./data/vapid/pub.txt");
 
     webPush.setVapidDetails(
         "https://goofy2.marceldobehere.com/",
