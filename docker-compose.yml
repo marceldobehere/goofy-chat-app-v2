@@ -5,7 +5,7 @@ services:
     build: .
     volumes:
       - "/etc/letsencrypt:/etc/letsencrypt"
-      - "./data:/data"
+      - "./data:/srv/server/data"
     networks:
       - "nginx-router_default"
       - "default"
