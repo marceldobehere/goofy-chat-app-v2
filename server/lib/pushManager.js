@@ -32,7 +32,7 @@ export async function notifyUserIfNeeded(userId) {
             console.log(newSub);
 
             let res =  await newSub.pushTextMessage(
-                JSON.stringify({ title: "Hello from application server!" }),
+                JSON.stringify({}),
                 {},
             );
             console.log(` > Sent Push: ${res}`);
