@@ -1,10 +1,14 @@
 import {updateUser} from "./userInterface.js";
 import {thingExists, writeFileSync} from "../other/utils.js";
-import webPush from 'npm:web-push';
+
+import * as mod from "https://jsr.io/@negrel/webpush/0.3.0/mod.ts";
+import { encodeBase64Url } from "jsr:@std/encoding@0.224.0/base64url";
 
 let io;
 let userInterface;
 let socketSessionManager;
+
+let pushServer;
 
 export async function notifyUserIfNeeded(userId) {
     // Check if user is online
@@ -19,22 +23,28 @@ export async function notifyUserIfNeeded(userId) {
     if (user["push-subcriptions"] === undefined || user["push-subcriptions"].length == 0)
         return;
 
-    console.log(`> Sending push notification to ${userId} (${user["push-subcriptions"].length} subscribers)`);
+    console.log(`> Sending push notification(s) to ${userId} (${user["push-subcriptions"].length} subscribers)`);
     for (let sub of user["push-subcriptions"])
     {
         console.log(" > Sending push notification to: ", sub);
-        webPush.sendNotification(sub, "<DATA>").then((res) => { // deno cant send non-empty payload
-            console.log(" > Push notification sent: ", res["body"]);
-        }).catch(error => {
+        try {
+            const newSub  = pushServer.subscribe(sub);
+            console.log(newSub);
+
+            let res =  await newSub.pushTextMessage(
+                JSON.stringify({ title: "Hello from application server!" }),
+                {},
+            );
+            console.log(` > Sent Push: ${res}`);
+        } catch (error) {
             console.error(" > Error sending push notification: ", error);
-            //user["push-subcriptions"] = user["push-subcriptions"].filter(subA => JSON.stringify(subA) !== JSON.stringify(sub));
-        });
+        }
     }
 
     // Clear push subscribers
     user["push-subcriptions"] = [];
     await updateUser(userId, user);
-    console.log("> Push notification sent");
+    console.log("> Push notification(s) sent");
 }
 
 let vapidPubKey;
@@ -48,20 +58,34 @@ export async function initKeys()
         if (!thingExists("./data/vapid"))
             Deno.mkdirSync("./data/vapid", { recursive: true });
 
-        // generate keys
-        const vapidKeys = webPush.generateVAPIDKeys();
-        console.log(vapidKeys);
-        writeFileSync("./data/vapid/priv.txt", vapidKeys.privateKey);
-        writeFileSync("./data/vapid/pub.txt", vapidKeys.publicKey);
-    }
-    let vapidPrivKey = Deno.readTextFileSync("./data/vapid/priv.txt");
-    vapidPubKey = Deno.readTextFileSync("./data/vapid/pub.txt");
 
-    webPush.setVapidDetails(
-        "https://marceldobehere.github.io/",//https://goofy2.marceldobehere.com/",
-        vapidPubKey,
-        vapidPrivKey
-    );
+        const oldVapidKeys = await mod.generateVapidKeys({ extractable: true });
+        console.log(oldVapidKeys);
+
+        let vapidKeys = await mod.exportVapidKeys(oldVapidKeys);
+        console.log(vapidKeys);
+
+
+        writeFileSync("./data/vapid/priv.txt", JSON.stringify(vapidKeys.privateKey));
+        writeFileSync("./data/vapid/pub.txt", JSON.stringify(vapidKeys.publicKey));
+    }
+
+    {
+        let privKey = JSON.parse(Deno.readTextFileSync("./data/vapid/priv.txt"));
+        let pubKey = JSON.parse(Deno.readTextFileSync("./data/vapid/pub.txt"));
+
+        let vapidKeys = await mod.importVapidKeys({ privateKey: privKey, publicKey: pubKey });
+        console.log(vapidKeys);
+
+        vapidPubKey = vapidKeys.publicKey;
+        let vapidPrivKey = vapidKeys.privateKey;
+
+        pushServer = await mod.ApplicationServer.new({
+            contactInformation: "https://marceldobehere.com/",
+            vapidKeys,
+        });
+        console.log(pushServer);
+    }
 
     console.log("> VAPID keys initialized");
 }
@@ -91,17 +115,22 @@ export async function initApp(_io, _userInterface, _socketSessionManager)
             if (user === undefined)
                 return socket.emit('push-subscribe', {error: "User not found"});
 
-            webPush
-
             console.log("> Subscribed to push");
             user["push-subcriptions"].push(subscription);
             await userInterface.updateUser(userIdSub, user);
             socket.emit('push-subscribe', {});
         });
 
-        socket.on('get-server-pub-key', (obj) => {
+        socket.on('get-server-pub-key', async (obj) => {
             console.log("> Sending server pub key");
-            socket.emit('get-server-pub-key', {"public-key": vapidPubKey});
+            const publicKey = encodeBase64Url(
+                await crypto.subtle.exportKey(
+                    "raw",
+                    vapidPubKey,
+                ),
+            );
+
+            socket.emit('get-server-pub-key', {"public-key": publicKey});
         });
 
 
