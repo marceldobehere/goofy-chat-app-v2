@@ -58,7 +58,7 @@ export async function initKeys()
     vapidPubKey = Deno.readTextFileSync("./data/vapid/pub.txt");
 
     webPush.setVapidDetails(
-        "https://goofy2.marceldobehere.com/",
+        "https://marceldobehere.github.io/",
         vapidPubKey,
         vapidPrivKey
     );
