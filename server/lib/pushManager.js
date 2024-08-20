@@ -29,7 +29,6 @@ export async function notifyUserIfNeeded(userId) {
         console.log(" > Sending push notification to: ", sub);
         try {
             const newSub  = pushServer.subscribe(sub);
-            console.log(newSub);
 
             let res =  await newSub.pushTextMessage(
                 JSON.stringify({}),
@@ -58,33 +57,28 @@ export async function initKeys()
         if (!thingExists("./data/vapid"))
             Deno.mkdirSync("./data/vapid", { recursive: true });
 
-
+        console.log("> Creating VAPID keys");
         const oldVapidKeys = await mod.generateVapidKeys({ extractable: true });
         console.log(oldVapidKeys);
 
         let vapidKeys = await mod.exportVapidKeys(oldVapidKeys);
-        console.log(vapidKeys);
-
 
         writeFileSync("./data/vapid/priv.txt", JSON.stringify(vapidKeys.privateKey));
         writeFileSync("./data/vapid/pub.txt", JSON.stringify(vapidKeys.publicKey));
     }
 
     {
+        console.log("> Loading VAPID keys");
         let privKey = JSON.parse(Deno.readTextFileSync("./data/vapid/priv.txt"));
         let pubKey = JSON.parse(Deno.readTextFileSync("./data/vapid/pub.txt"));
 
         let vapidKeys = await mod.importVapidKeys({ privateKey: privKey, publicKey: pubKey });
-        console.log(vapidKeys);
-
         vapidPubKey = vapidKeys.publicKey;
-        let vapidPrivKey = vapidKeys.privateKey;
 
         pushServer = await mod.ApplicationServer.new({
             contactInformation: "https://marceldobehere.com/",
             vapidKeys,
         });
-        console.log(pushServer);
     }
 
     console.log("> VAPID keys initialized");
