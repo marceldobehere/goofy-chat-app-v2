@@ -1,4 +1,4 @@
-FROM glowman554/deno
+FROM denoland/deno
 
 
 WORKDIR /srv
