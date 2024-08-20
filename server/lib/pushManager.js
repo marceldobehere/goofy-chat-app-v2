@@ -23,7 +23,7 @@ export async function notifyUserIfNeeded(userId) {
     for (let sub of user["push-subcriptions"])
     {
         console.log(" > Sending push notification to: ", sub);
-        webPush.sendNotification(sub, undefined).then((res) => { // deno cant send non-empty payload
+        webPush.sendNotification(sub, "<DATA>").then((res) => { // deno cant send non-empty payload
             console.log(" > Push notification sent: ", res["body"]);
         }).catch(error => {
             console.error(" > Error sending push notification: ", error);
