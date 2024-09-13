@@ -9,7 +9,10 @@ app.get("/", (req, res) => {
 
 
 import {Server} from "npm:socket.io@4.7.2";
-const io = new Server(server);
+const io = new Server(server, {
+    allowEIO3: true,
+    transports: ["websocket", "polling"]
+});
 
 io.setMaxListeners(1000);
 
