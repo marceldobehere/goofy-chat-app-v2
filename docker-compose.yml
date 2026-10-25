@@ -1,11 +1,10 @@
-version: "3.3"
 services:
   goofy_chat_v2:
     container_name: goofy_chat_v2
     build: .
     volumes:
       - "/etc/letsencrypt:/etc/letsencrypt"
-      - "./server/data:/srv/server/data"
+      - "/home/pub/app-data/goofy-chat-v2/data:/srv/server/data"
     networks:
       - "nginx-router_default"
       - "default"
